@@ -2,6 +2,12 @@ worker_processes Integer(ENV["WEB_CONCURRENCY"] || 3)
 timeout 15
 preload_app true
 
+working_directory "/var/www/tunesheap"
+stderr_path "/var/www//tunesheap/unicorn.log"
+stdout_path "/var/www/tunesheap/log/unicorn.log"
+pid "/var/www/tunesheap/pids/unicorn.pid"
+listen "/tmp/unicorn.tunesheap.sock"
+
 before_fork do |server, worker|
   Signal.trap 'TERM' do
     puts 'Unicorn master intercepting TERM and sending myself QUIT instead'

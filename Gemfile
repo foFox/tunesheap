@@ -35,8 +35,7 @@ gem 'capistrano'
 gem 'capistrano-ext'
 gem 'capistrano-rails'
 gem 'capistrano-rvm'
-gem 'sepastian-capistrano3-unicorn'
-
+gem 'capistrano3-unicorn'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
