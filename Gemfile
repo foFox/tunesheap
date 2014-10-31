@@ -35,7 +35,7 @@ gem 'capistrano'
 gem 'capistrano-ext'
 gem 'capistrano-rails'
 gem 'capistrano-rvm'
-gem 'capistrano-unicorn'
+gem 'sepastian-capistrano3-unicorn'
 
 
 # Use debugger

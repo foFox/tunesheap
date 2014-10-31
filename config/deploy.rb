@@ -2,67 +2,44 @@
 lock '3.2.1'
 
 set :application, 'tunesheap'
-set :repo_url, 'https://www.github.com/foFox/tunesheap.git'
-
-
-# Default branch is :master
-# ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }.call
-
-# Default deploy_to directory is /var/www/my_app
-set :deploy_to, '/var/www/tunesheap'
+set :repo_url, "https://www.github.com/foFox/#{fetch(:application)}.git"
+set :deploy_to, "/var/www/#{fetch(:application)}"
 set :rvm_ruby_version, '2.1.2'
 
-
-# Default value for :scm is :git
-# set :scm, :git
-
-# Default value for :format is :pretty
-# set :format, :pretty
-
-# Default value for :log_level is :debug
-# set :log_level, :debug
-
-# Default value for :pty is false
-# set :pty, true
-
-# Default value for :linked_files is []
-# set :linked_files, %w{config/database.yml}
-
-# Default value for linked_dirs is []
-# set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
-
-# Default value for default_env is {}
-# set :default_env, { path: "/opt/ruby/bin:$PATH" }
-
-# Default value for keep_releases is 5
-# set :keep_releases, 5
-
-namespace :setup_host do
+namespace :host do
   desc "Install Git"
   task :install_git do
     on "ubuntu@54.191.231.205" do
-      sudo "apt-get install git-core git-svn -y"
+      if not test("[ -f /usr/bin/git ]") then
+        sudo "apt-get install git-core git-svn -y"
+      end
     end
   end
 
   desc "Create application directory" 
   task :create_app_directory do
       on "ubuntu@54.191.231.205" do
-        sudo "mkdir /var/www"
-        sudo "mkdir /var/www/tunesheap"
-        sudo "chown -R ubuntu:ubuntu /var/www/tunesheap"
+        if test("[ ! -d /var/www/ ]") then
+          sudo "mkdir /var/www"
+        end
+
+        if test("[ ! -d /var/www/#{fetch(:application)} ]") then
+          sudo "mkdir /var/www/#{fetch(:application)}"
+          sudo "chown -R ubuntu:ubuntu /var/www/#{fetch(:application)}"
+        end
       end
   end
 end
 
-
 namespace :deploy do
   
+  before "deploy:started", "host:install_git"
+  after "host:install_git", "host:create_app_directory"
+
   desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      # Your restart mechanism here, for example:
-      # execute :touch, release_path.join('tmp/restart.txt')
+
     end
   end
 
@@ -70,11 +47,10 @@ namespace :deploy do
 
   after :restart, :clear_cache do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
-      # Here we can do anything such as:
-      # within release_path do
-      #   execute :rake, 'cache:clear'
-      # end
+      run "unicorn_rails -c #{fetch(:application)}/config/unicorn.rb -D"  
     end
   end
 
 end
+
+
