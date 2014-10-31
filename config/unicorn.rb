@@ -3,7 +3,7 @@ timeout 15
 preload_app true
 
 working_directory "/var/www/tunesheap/current"
-stderr_path "/var/www/tunesheap/current/unicorn.log"
+stderr_path "/var/www/tunesheap/current/log/unicorn.log"
 stdout_path "/var/www/tunesheap/current/log/unicorn.log"
 pid "/var/www/tunesheap/current/pids/unicorn.pid"
 listen "/tmp/unicorn.tunesheap.sock"
