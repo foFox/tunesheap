@@ -27,3 +27,7 @@ after_fork do |server, worker|
   defined?(ActiveRecord::Base) and
     ActiveRecord::Base.establish_connection
 end
+
+before_exec do |server| 
+  ENV["BUNDLE_GEMFILE"] = "/var/www/tunesheap/current/Gemfile" 
+end
