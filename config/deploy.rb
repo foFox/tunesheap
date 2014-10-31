@@ -46,9 +46,7 @@ namespace :deploy do
   after :publishing, :restart
 
   after :restart, :clear_cache do
-    on roles(:web), in: :groups, limit: 3, wait: 10 do
-      run "unicorn_rails -c #{fetch(:application)}/config/unicorn.rb -D"  
-    end
+      run "unicorn_rails -c #{fetch(:application)}/config/unicorn.rb -D"      
   end
 
 end
