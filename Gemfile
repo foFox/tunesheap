@@ -36,6 +36,7 @@ gem 'capistrano-ext'
 gem 'capistrano-rails'
 gem 'capistrano-rvm'
 gem 'capistrano3-unicorn'
+gem 'rack-health'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
