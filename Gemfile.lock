@@ -74,6 +74,8 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (2.9.1)
+    rabl (0.11.4)
+      activesupport (>= 2.3.14)
     rack (1.5.2)
     rack-health (0.1.2)
       rack (>= 1.2.0)
@@ -149,6 +151,7 @@ DEPENDENCIES
   coffee-rails (~> 4.0.0)
   jbuilder (~> 2.0)
   jquery-rails
+  rabl
   rack-health
   rails (= 4.1.6)
   sass-rails (~> 4.0.3)
