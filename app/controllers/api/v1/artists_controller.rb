@@ -1,4 +1,5 @@
 class Api::V1::ArtistsController < ApplicationController
+
 	respond_to :html, :xml, :json
 	skip_before_action :verify_authenticity_token
 
