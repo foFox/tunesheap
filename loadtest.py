@@ -12,12 +12,16 @@ import os
 port = 9431
 
 if len(sys.argv) <= 2:
-	print 'Usage: ./tunesheaploadtest [# requests] [# workers]'
+	print 'Usage: ./loadtest [# requests] [# workers]'
 	sys.exit(2)
 else:
-	NUMREQUESTS = sys.argv[1]
-	NUMWORKERS = sys.argv[2]
-
+	try:
+		NUMREQUESTS = int(sys.argv[1])
+		NUMWORKERS = int(sys.argv[2])
+	except:
+		 print "# requests and # workers must be integers"
+		 sys.exit(2)
+		 
 	try:
 		queue = WorkQueue(port)
 	except:
@@ -25,7 +29,7 @@ else:
 		sys.exit(1)
 	queue.specify_name( "tunesheap" )
 	for i in range(0, NUMREQUESTS): # One workqueue task for each request
-		outfile = "request_" + i + ".out"	
+		outfile = "request_" + str(i) + ".out"	
 		command = "curl http://www.tunesheap.com > " + outfile
 		# os.system(command)
 		# Create work queue task to perform request
