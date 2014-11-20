@@ -47,9 +47,13 @@ else:
 	while not queue.empty():
 		task = queue.wait(5)
 		if task:
-			print "task (id# %d) complete: %s (return code %d)" % (task.id, task.command, task.return_status)
 			taskscompleted = taskscompleted + 1
 			os.system( "clear" )
+			print "task (id# %d) complete: %s (return code %d)" % (task.id, task.command, task.return_status)
 			print "Requests finished (regardless of status): " + str(taskscompleted) + " / " + str(NUMREQUESTS)
 	os.system( "clear" )
-	print "all tasks complete."
+	
+	user = os.environ['USER']
+	os.system("condor_rm " + user)
+
+	print "all tasks complete. condor workers removed."
