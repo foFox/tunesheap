@@ -76,7 +76,7 @@ class Api::V1::Artists::AlbumsController < ApplicationController
 		@album = artist.albums.find(params[:id])
 		@album.name = params[:name] unless params[:name].nil?
 		@album.genre = params[:genre] unless params[:genre].nil?
-		@album.release_date =Date.parse(params[:release_date]) unless params[:release_date].nil?
+		@album.release_date = Date.parse(params[:release_date]) unless params[:release_date].nil?
 		@album.description = params[:description] unless params[:description].nil?
 		@album.save
 		respond_with @album
