@@ -38,6 +38,8 @@ gem 'capistrano-rvm'
 gem 'capistrano3-unicorn'
 gem 'rack-health'
 gem 'rabl'
+gem 'apipie-rails'
+
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]

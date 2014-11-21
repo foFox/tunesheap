@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  apipie
   get 'welcome/index'
 
   # The priority is based upon order of creation: first created -> highest priority.
@@ -58,8 +59,12 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :artists
-      resources :albums
+      resources :artists do 
+        resources :albums, :controller => 'artists/albums'
+      end
+      resources :albums do
+        resources :songs, :controller => 'albums/songs'        
+      end
       resources :songs      
     end   
   end
