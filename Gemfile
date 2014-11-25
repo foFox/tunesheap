@@ -39,6 +39,7 @@ gem 'capistrano3-unicorn'
 gem 'rack-health'
 gem 'rabl'
 gem 'apipie-rails'
+gem 'aws-sdk'
 
 
 # Use debugger

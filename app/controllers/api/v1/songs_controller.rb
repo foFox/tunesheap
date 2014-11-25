@@ -36,12 +36,21 @@ class Api::V1::SongsController < ApplicationController
 	api :POST, '/songs/', 'Create new song'
 	param :name, String, :desc => "name of the song", :required => false
 	param :length, String, :desc => "length of the song in seconds", :required => false
-
+	param :song_data, File, :desc => "music data", :required => false
+	
 	def create
 		@song = Song.new
 		@song.name = params[:name]
 		@song.length = params[:length]		
 		@song.save 
+
+		if not params[:song_data].nil? then
+			s3 = AWS::S3.new
+			response = s3.buckets["tunesheap-content"].objects["#{@song.id}-song.mp3" ].write(:file => params[:song_data].tempfile.path)
+			@song.data = response.public_url.to_s
+			@song.save
+		end
+
 		respond_with @song
 	end
 
@@ -51,12 +60,20 @@ class Api::V1::SongsController < ApplicationController
 	param :id, String, :desc => "identifier of the song", :required => true
 	param :name, String, :desc => "name of the song", :required => false
 	param :length, String, :desc => "length of the song in seconds", :required => false
+	param :song_data, File, :desc => "music data", :required => false
 
 	def update
 		@song = Song.find(params[:id])
 		@song.name = params[:name] unless params[:name].nil?
 		@song.length = params[:length] unless params[:length].nil?
-		@song.save
+
+		if not params[:song_data].nil? then 
+			s3 = AWS::S3.new
+			response = s3.buckets["tunesheap-content"].objects["#{@song.id}-song.mp3" ].write(:file => params[:song_data].tempfile.path)
+			@song.data = response.public_url.to_s			
+		end
+		
+		@song.save		
 		respond_with @song
 	end
 

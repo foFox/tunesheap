@@ -38,7 +38,8 @@ class Api::V1::AlbumsController < ApplicationController
 	param :genre, String, :desc => "genre of the album", :required => false
 	param :release_date, Date, :desc => "release date of the album", :required => false
 	param :description, String, :desc => "additional description of the album", :required => false
-	
+	param :artwork_data, File, :desc => "cover picture of the album", :required => false
+
 	def create
 		@album = Album.new
 		@album.name = params[:name]
@@ -46,6 +47,14 @@ class Api::V1::AlbumsController < ApplicationController
 		@album.release_date = Date.parse(params[:release_date]) unless params[:release_date].nil?
 		@album.description = params[:description]
 		@album.save
+
+		if not params[:artwork_data].nil? then
+			s3 = AWS::S3.new
+			response = s3.buckets["tunesheap-content"].objects["#{@album.id}-album-artwork" ].write(:file => params[:artwork_data].tempfile.path)
+			@album.artwork_url = response.public_url.to_s
+			@album.save
+		end
+
 		respond_with @album
 	end
 
@@ -57,6 +66,8 @@ class Api::V1::AlbumsController < ApplicationController
 	param :genre, String, :desc => "genre of the album", :required => false
 	param :release_date, Date, :desc => "release date of the album", :required => false
 	param :description, String, :desc => "additional description of the album", :required => false
+	param :artwork_data, File, :desc => "cover picture of the album", :required => false
+
 	
 	def update
 		@album = Album.find(params[:id])
@@ -64,7 +75,14 @@ class Api::V1::AlbumsController < ApplicationController
 		@album.genre = params[:genre] unless params[:genre].nil?
 		@album.release_date =Date.parse(params[:release_date]) unless params[:release_date].nil?
 		@album.description = params[:description] unless params[:description].nil?
-		@album.save
+
+		if not params[:artwork_data].nil? then
+			s3 = AWS::S3.new
+			response = s3.buckets["tunesheap-content"].objects["#{@album.id}-album-artwork" ].write(:file => params[:artwork_data].tempfile.path)
+			@album.artwork_url = response.public_url.to_s			
+		end
+		
+		@album.save		
 		respond_with @album
 	end
 

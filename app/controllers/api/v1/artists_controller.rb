@@ -38,7 +38,8 @@ class Api::V1::ArtistsController < ApplicationController
 	param :description, String, :desc => "additional description of the artist", :required => false
 	param :dob, String, :desc => "date of birth of the artist", :required => false
 	param :website, String, :desc => "url of the aritst's website", :required => false
-	
+	param :picture_data, File, :desc => "picture of the artist", :required => false 
+
 	def create
 		@artist = Artist.new
 		@artist.name = params[:name]
@@ -47,6 +48,14 @@ class Api::V1::ArtistsController < ApplicationController
 		@artist.dob = Date.parse(params[:dob]) unless params[:dob].nil?
 		@artist.website = params[:website]
 		@artist.save
+
+		if not params[:picture_data].nil? then
+			s3 = AWS::S3.new
+			response = s3.buckets["tunesheap-content"].objects["#{@artist.id}-artist-picture" ].write(:file => params[:picture_data].tempfile.path)
+			@artist.picture_url = response.public_url.to_s
+			@artist.save
+		end
+
 		respond_with @artist
 	end
 
@@ -59,6 +68,7 @@ class Api::V1::ArtistsController < ApplicationController
 	param :description, String, :desc => "additional description of the artist", :required => false
 	param :dob, String, :desc => "date of birth of the artist", :required => false
 	param :website, String, :desc => "url of the aritst's website", :required => false
+	param :picture_data, File, :desc => "picture of the artist", :required => false
 
 	def update
 		@artist = Artist.find(params[:id])
@@ -67,6 +77,13 @@ class Api::V1::ArtistsController < ApplicationController
 		@artist.description = params[:description] unless params[:description].nil?
 		@artist.dob = Date.parse(params[:dob]) unless params[:dob].nil?
 		@artist.website = params[:website] unless params[:website].nil?
+
+		if not params[:picture_data].nil? then
+			s3 = AWS::S3.new
+			response = s3.buckets["tunesheap-content"].objects["#{@artist.id}-artist-picture" ].write(:file => params[:picture_data].tempfile.path)
+			@artist.picture_url = response.public_url.to_s
+		end
+
 		@artist.save
 		respond_with @artist
 	end
