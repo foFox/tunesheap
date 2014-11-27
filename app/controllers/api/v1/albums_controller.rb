@@ -68,7 +68,6 @@ class Api::V1::AlbumsController < ApplicationController
 	param :description, String, :desc => "additional description of the album", :required => false
 	param :artwork_data, File, :desc => "cover picture of the album", :required => false
 
-	
 	def update
 		@album = Album.find(params[:id])
 		@album.name = params[:name] unless params[:name].nil?
