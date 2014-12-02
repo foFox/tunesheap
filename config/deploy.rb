@@ -6,6 +6,11 @@ set :repo_url, "https://www.github.com/foFox/#{fetch(:application)}.git"
 set :deploy_to, "/var/www/#{fetch(:application)}"
 set :rvm_ruby_version, '2.1.2'
 
+
+def all_instances 
+  
+end
+
 namespace :host do
 
   desc "Update host"

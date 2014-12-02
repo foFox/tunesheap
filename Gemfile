@@ -30,7 +30,6 @@ gem 'spring',        group: :development
 
 # Use unicorn as the app server
 gem 'unicorn'
-
 gem 'capistrano'
 gem 'capistrano-ext'
 gem 'capistrano-rails'
@@ -40,7 +39,7 @@ gem 'rack-health'
 gem 'rabl'
 gem 'apipie-rails'
 gem 'aws-sdk'
-
+gem 'pg'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
