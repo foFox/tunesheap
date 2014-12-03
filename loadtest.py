@@ -8,6 +8,7 @@ from work_queue import *
 
 import sys
 import os
+import time
 
 port = 9431
 
@@ -18,8 +19,11 @@ else:
 	try:
 		NUMREQUESTS = int(sys.argv[1])
 		NUMWORKERS = int(sys.argv[2])
+		
+		if (NUMREQUESTS < 1 or NUMWORKERS < 1):
+			sys.exit(2)
 	except:
-		 print "# requests and # workers must be integers"
+		 print "# requests and # workers must be positive integers"
 		 sys.exit(2)
 		 
 	try:
@@ -30,11 +34,12 @@ else:
 	queue.specify_name( "tunesheap" )
 	for i in range(0, NUMREQUESTS): # One workqueue task for each request
 		outfile = "request_" + str(i) + ".out"	
-		command = "curl http://www.tunesheap.com > " + outfile
+		# command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://www.tunesheap.com/\" -o /dev/null"
+		command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://192.241.177.249:3000/\" -o /dev/null"
 		# os.system(command)
 		# Create work queue task to perform request
 		wqtask = Task(command)
-		wqtask.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache = False)
+		# wqtask.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache = False)
 		taskid = queue.submit(wqtask)
 		# print "submitted task (id# %d)" % (taskid)
 
@@ -43,17 +48,27 @@ else:
 	os.system("condor_submit_workers %s %d %d" % (host, port, NUMWORKERS))
 	
 	taskscompleted = 0
+	totaltime = 0
+	badreq = 0
 	print "workers submitted to condor. waiting for tasks to complete..."
 	while not queue.empty():
 		task = queue.wait(5)
 		if task:
 			taskscompleted = taskscompleted + 1
 			os.system( "clear" )
-			print "task (id# %d) complete: %s (return code %d)" % (task.id, task.command, task.return_status)
+			responsecode = int(task.output.split(' ')[0])
+			if (responsecode != 200):
+				badreq = badreq + 1
+			else:		
+				seconds = task.output.split(' ')[1]
+				totaltime = totaltime + float(seconds)
+				print responsecode
+				print seconds
+				print totaltime
+			# print "task (id# %d) complete: %s (return code %d)" % (task.id, task.command, task.return_status)
 			print "Requests finished (regardless of status): " + str(taskscompleted) + " / " + str(NUMREQUESTS)
 	os.system( "clear" )
-	
+	avgtime = totaltime / (NUMREQUESTS - badreq)
 	user = os.environ['USER']
 	os.system("condor_rm " + user)
-
-	print "all tasks complete. condor workers removed."
+	print "all tasks complete. condor workers removed. total time: " + str(totaltime) + " seconds. successful requests = " + str(NUMREQUESTS - badreq) + "/" + str(NUMREQUESTS) + ": " + str( ( float(NUMREQUESTS - badreq) / float(NUMREQUESTS)) * 100) + "%. average time per successful request: " + str(avgtime) + " seconds."
