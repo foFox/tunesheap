@@ -9,8 +9,9 @@ from work_queue import *
 import sys
 import os
 import time
+import numpy 
 
-port = 9431
+port = 9523
 
 if len(sys.argv) <= 2:
 	print 'Usage: ./loadtest [# requests] [# workers]'
@@ -33,9 +34,10 @@ else:
 		sys.exit(1)
 	queue.specify_name( "tunesheap" )
 	for i in range(0, NUMREQUESTS): # One workqueue task for each request
-		outfile = "request_" + str(i) + ".out"	
-		# command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://www.tunesheap.com/\" -o /dev/null"
-		command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://192.241.177.249:3000/\" -o /dev/null"
+		command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"https://d25xp0wafltcmt.cloudfront.net/3-song.mp3\" -o /dev/null"
+		#command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://192.241.177.249/3-song.mp3\" -o /dev/null"
+		#command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://www.tunesheap.com/api/v1/artists/14\" -o /dev/null"
+		#command = "curl -sL -w \"%{http_code} %{time_total} \\n\" \"http://192.241.177.249:3000/api/v1/artists" -o /dev/null"
 		# os.system(command)
 		# Create work queue task to perform request
 		wqtask = Task(command)
@@ -51,6 +53,9 @@ else:
 	totaltime = 0
 	badreq = 0
 	print "workers submitted to condor. waiting for tasks to complete..."
+	
+	responsetimes=[]
+
 	while not queue.empty():
 		task = queue.wait(5)
 		if task:
@@ -64,6 +69,7 @@ else:
 				totaltime = totaltime + float(seconds)
 				print responsecode
 				print seconds
+				responsetimes.append(float(seconds))
 				print totaltime
 			# print "task (id# %d) complete: %s (return code %d)" % (task.id, task.command, task.return_status)
 			print "Requests finished (regardless of status): " + str(taskscompleted) + " / " + str(NUMREQUESTS)
@@ -71,4 +77,4 @@ else:
 	avgtime = totaltime / (NUMREQUESTS - badreq)
 	user = os.environ['USER']
 	os.system("condor_rm " + user)
-	print "all tasks complete. condor workers removed. total time: " + str(totaltime) + " seconds. successful requests = " + str(NUMREQUESTS - badreq) + "/" + str(NUMREQUESTS) + ": " + str( ( float(NUMREQUESTS - badreq) / float(NUMREQUESTS)) * 100) + "%. average time per successful request: " + str(avgtime) + " seconds."
+	print "all tasks complete. condor workers removed. total time: " + str(totaltime) + " seconds. successful requests = " + str(NUMREQUESTS - badreq) + "/" + str(NUMREQUESTS) + ": " + str( ( float(NUMREQUESTS - badreq) / float(NUMREQUESTS)) * 100) + "%. average time per successful request: " + str(avgtime) + " seconds. stdev: " + str(numpy.std(responsetimes))
